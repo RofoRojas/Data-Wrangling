@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1564499514901.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2046475989",
+    "id" : "871EE3AE",
+    "lastKnownWriteTime" : 1564434265,
+    "last_content_update" : 1564434265,
+    "path" : "~/Documents/2do Semestre 2019/Data_Wrangling/Clase1/Ejercicio_Beatles.Rmd",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "4,8",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

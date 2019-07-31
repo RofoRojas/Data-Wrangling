@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1564431339431.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2739019175",
+    "id" : "81780695",
+    "lastKnownWriteTime" : 1564499525,
+    "last_content_update" : 1564499525909,
+    "path" : "~/Documents/2do Semestre 2019/Data_Wrangling/Repaso R/Clase1.Rmd",
+    "project_path" : "Clase1.Rmd",
+    "properties" : {
+        "cursorPosition" : "4,34",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
