@@ -73,4 +73,21 @@ system.time(
   lapply(1:100000, generate_df)
 )
 
+#### Cargar EXCEL
+library(readxl)
+library(openxlsx)
+
+hour <- read.csv("data/hour.csv")
+bancos_activos <- read_excel("data/bancos.xlsx", sheet = 2)
+head(bancos_activos)
+bancos_activos_2 <- readWorkbook("data/bancos.xlsx", sheet = 2)
+head(bancos_activos_2)
+
+
+
+
+
+
+
+
 

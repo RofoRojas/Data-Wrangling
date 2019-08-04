@@ -1,0 +1,89 @@
+---
+title: "Lab01"
+author: "Rodolfo"
+date: "31/7/2019"
+output: rmarkdown::github_document
+---
+
+```{r, cache=TRUE, echo=FALSE}
+library(dplyr)
+library(readxl)
+```
+## Problema 1
+Leer que archivos existen:
+```{r, cache=TRUE}
+archivos <- list.files("data")
+```
+
+Funcion para leer archivo y ponerle fecha
+```{r, cache=TRUE}
+Poner_Fecha <- function(name){
+  Month <- substr(name,1,2)
+  Year <- substr(name, 4, 7)
+  df_temporal <- data.frame(read_excel(paste("data/", name,sep="")))
+  df_temporal$MONTH <- Month
+  df_temporal$YEAR <- Year
+  df_temporal <- df_temporal[,c("COD_VIAJE","CLIENTE","UBICACION","CANTIDAD", "PILOTO","Q","CREDITO","UNIDAD", "MONTH", "YEAR")]
+  return(df_temporal)
+}
+```
+Creo los dataframes
+```{r, cache=TRUE}
+listado_df <- lapply(archivos, Poner_Fecha)
+```
+
+Se unen los dataframes y elimino lo que ya no me va a servir
+```{r, cache=TRUE}
+Datos_Completos <- do.call(rbind, listado_df)
+rm(archivos)
+rm(listado_df)
+```
+
+Escribo un archivo csv
+```{r}
+write.csv(Datos_Completos, file = "Entregas_2018.csv")
+```
+
+
+## Problema 2
+
+Hacer una funcion para encontrar la moda de un vector
+```{r, cache=TRUE}
+Moda <- function(vec){
+  vec_df <- data_frame(values=vec)
+  vec_count <- count(vec_df, values, sort = TRUE)
+  val <- vec_count[1,1]
+  return(as.vector(val))
+}
+```
+
+Lista de vectores a utilizar
+```{r, cache=TRUE}
+listado <- list(
+  num = c(1:5, 3, 3,4,5,3,2,1),
+  nom = c("Rodolfo","Juan", "Sara", "Sofia", "Maria",  "Rodolfo"),
+  pais = c("GUA", "USA", "MEX", "ESP", "GUA", "BEL", "FRA", "ITA", "GUA", "ITA")
+)
+```
+Prueba y muestra
+```{r}
+lapply(listado, Moda)
+```
+
+
+## Problema 3
+Importar archivo de parque vehicular
+
+```{r, cache=TRUE}
+PV_01_2019 <- read.delim(file = "INE_PARQUE_VEHICULAR_080219.txt", header = TRUE, sep="|")
+PV_01_2019 <- PV_01_2019[,-11]
+```
+
+
+
+
+
+
+
+
+
