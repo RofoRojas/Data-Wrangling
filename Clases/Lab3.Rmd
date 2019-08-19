@@ -1,0 +1,186 @@
+---
+title: "Laboratorio03"
+author: "Rodolfo"
+date: "14/8/2019"
+output: rmarkdown::github_document
+---
+
+```{r, echo=FALSE}
+library(tidyverse)
+library(readr)
+```
+
+#Trabajo en Clase EXTRA
+```{r, cache=TRUE}
+players_score <- as.data.frame(read_csv(file = "football-world-cup-2018-dataset/Players_Score.csv"))
+players_score$cambio<-str_extract_all(players_score$Apps, "\\([^)]*\\)","")
+players_score$cambio<-str_extract_all(players_score$cambio,"[0-9]+")
+players_score$Apps<-str_replace_all(players_score$Apps, "\\([^)]*\\)","")
+numbers <- c("age", "Apps", "cambio", "Goals", "Assists", "Yel", "Red", "SpG", "PS", "AerialsWon", "MotM","Rating")
+
+players_score[numbers] <- lapply(players_score[numbers],as.numeric)
+
+players_score[numbers] <- players_score[numbers] %>%
+  replace_na(list(age=0, Goals=0, Assists=0, Yel=0, Red=0, SpG=0, PS=0, AerialsWon=0,MotM=0, cambio=0))
+head(players_score)
+```
+###  Jugador con mejor PS y de que club es
+```{r}
+players_score %>% select(player,PS,club) %>% 
+  arrange(desc(PS)) %>% head(1)
+```
+### Mas veces a sido Man of the Match e indice de goles por minuto
+```{r}
+players_score %>% arrange(desc(MotM)) %>% 
+  mutate(`Minutos/Gol`= Mins/Goals) %>% 
+  head(1) %>% 
+  summarise(player,MotM, `Minutos/Gol`)
+```
+### Mas joven con mas goles anotados
+```{r}
+players_score %>% 
+  arrange(age, desc(Goals)) %>% head(1) %>% 
+  select(player, club, age, Goals, Mins)
+```
+### Cambio mas efectivo con goles
+Respuesta inconclusa, no supe en que basar esto.
+```{r}
+players_score %>% mutate(`M/G`=Mins/Goals, Rate= Goals/cambio) %>% 
+  filter(Goals!=0, cambio!=0) %>% 
+  arrange(Rate, desc(Goals),Mins,  desc(`M/G`, cambio)) %>% head()
+```
+### Jugador con mas tarjetas
+```{r}
+players_score %>% mutate(Tot_Tarjetas= Yel+Red) %>% 
+  select(player, club, Tot_Tarjetas, Yel, Red) %>% arrange(desc(Tot_Tarjetas)) %>% 
+  head(1)
+```
+### El mejor equipo
+Para decidir cual es el mejor equipo me baso en la idea que en conjunto el ranking de sus jugadores hace al equipo, asi la suma del ranking de los jugadores me da una metrica valida para comparar a los equipos.
+```{r}
+players_score %>% 
+  group_by(club) %>% 
+  summarise(rank_equipo=sum(Rank)) %>% arrange(rank_equipo)
+```
+
+# Laboratorio 3
+```{r , cache=TRUE}
+#df <-as.data.frame( read_csv("Lab3/tabla_completa.csv"))
+df <- as.data.frame(readr::read_csv("Lab3/tabla_completa.csv", locale = locale(encoding = "latin1")))
+#df$UNIDAD %>% unique()
+head(df)
+# glimpse(viajes) %>% str()
+# colSums(is.na(viajes))
+```
+
+### ¿Debemos invertir en la contratación de más personal?
+Yo creeria que no es necesario contratar a mas personal, cada piloto hace un promedio de 22 viajes al mes, lo cual no es demasiado pues hacen aproximadamente un viaje al dia.
+```{r, cache=TRUE}
+df %>%
+  group_by(MES,PILOTO)%>%
+  count() %>% ungroup() %>% 
+  group_by(PILOTO) %>% 
+  summarise(Promedio=mean(n))
+```
+###¿Debemos invertir en la compra de más vehículos de distribución? ¿Cuántos y de que
+tipo?
+Si vamos a comprar alguna unidad extra probablemente deberia ser de camiones grandes pues es la que mas se usa, las otras basta con dos o tres para suplir los viajes mensuales, del camion grande se usan cinco todo el tiempo sin parar. Es por esto que si de algun transporte se necesita seria el de el camion grande.
+```{r}
+df%>%
+  group_by(UNIDAD,MES) %>%
+  count() %>% ungroup() %>% 
+  group_by(UNIDAD) %>% 
+  summarise(promedio= mean(n), cant= mean(n)/22)
+```
+
+### Las tarifas actuales ¿son aceptables por el cliente?
+ Si son aceptables, todos pagan lo mismo por cada unidad de producto asi que supongo que todos estan de acuerdo con las tarifas si no hay nadie con una tarifa diferente, no importando la cantidad.
+```{r , cache=TRUE}
+nuevo_df<-df
+nuevo_df[grep('EL GALLO NEGRO', nuevo_df$CLIENTE),"CLIENTE"] <-"EL GALLO NEGRO"
+nuevo_df[grep('POLLO PINULITO', nuevo_df$CLIENTE),"CLIENTE"] <-"POLLO PINULITO"
+nuevo_df[grep('EL PINCHE OBELISCO', nuevo_df$CLIENTE),"CLIENTE"] <-"EL PINCHE OBELISCO"
+nuevo_df[grep('TAQUERIA EL CHINITO', nuevo_df$CLIENTE),"CLIENTE"] <-"TAQUERIA EL CHINITO"
+nuevo_df[grep('UBIQUO LABS', nuevo_df$CLIENTE),"CLIENTE"] <-"UBIQUO LABS"
+
+nuevo_df %>% group_by(CLIENTE) %>% 
+  mutate(Precio=Q/CANTIDAD) %>% 
+  select(CLIENTE, Precio) %>% unique() %>% 
+  arrange(CLIENTE, Precio)
+```
+
+### ¿Nos están robando los pilotos?
+Yo creo que no, si alguien lo esta haciendo quiza sea Pedro Alvarez pero es poco probable a todos los pilotos les falta aproximadamente el 3% de los pedidos, pero es con los mismos clientes, Pedro supera el promedio mensual de los faltantes en 6 meses comparado a 4 de los demas pilotos.
+
+```{r}
+nuevo_df <-df 
+nuevo_df$Faltante <- grepl('Faltante', nuevo_df$CLIENTE, ignore.case=TRUE)
+nuevo_df$Despacho <- grepl('Despacho', nuevo_df$CLIENTE, ignore.case=TRUE)
+nuevo_df$Devolucion <- grepl('Devolucion', nuevo_df$CLIENTE, ignore.case=TRUE)
+
+nuevo_df %>% 
+  group_by(PILOTO, MES) %>% 
+  summarise(Tot=n(), Falt=sum(Faltante), Dev=sum(Devolucion, Desp=sum(Despacho))) %>% 
+  mutate(Por_Falt=Tot/Falt) %>% arrange(desc(Por_Falt)) %>% 
+  mutate(mayor= ifelse(Por_Falt>=mean(Por_Falt), 1, 0)) %>% 
+  ungroup() %>% group_by(PILOTO) %>% 
+  summarise(mes_Raro= sum(mayor)) %>% arrange(desc(mes_Raro))
+```
+```{r}
+nuevo_df %>% 
+  filter(PILOTO=="Luis Jaime Urbano") %>% 
+  group_by(UNIDAD) %>% summarise(n())
+```
+
+
+### ¿Qué estrategias debo seguir?
+Yo sugeriria implementar tarifas diferente dependiendo del transporte que se deba utilizar pues los costos son diferentes tambien creo que debe haber un cobro escalado y no lineal pues llevar 10 u once productos el costo pienso es el mismo, sin embargo el cobro es menor en esta forma.
+```{r}
+
+```
+
+
+### 80-20 de clientes y cuáles de ellos son los más importantes
+No se cumple la ley de pareto del 80-20 de los clientes en este caso ni con las ventas ni con los viajes. Los Mas importantes yo diria que son los cinco con mas movimiento, siendo estos El Pinche Obelisco, Taqueria El Chinito, El Gallo Negro, Pollo Pinulito y Ubico Labs.
+```{r}
+nuevo_df <- as.data.frame(df)
+nuevo_df$CLIENTE %>% unique()
+```
+
+```{r}
+nuevo_df[grep('EL GALLO NEGRO', nuevo_df$CLIENTE),"CLIENTE"] <-"EL GALLO NEGRO"
+nuevo_df[grep('POLLO PINULITO', nuevo_df$CLIENTE),"CLIENTE"] <-"POLLO PINULITO"
+nuevo_df[grep('EL PINCHE OBELISCO', nuevo_df$CLIENTE),"CLIENTE"] <-"EL PINCHE OBELISCO"
+nuevo_df[grep('TAQUERIA EL CHINITO', nuevo_df$CLIENTE),"CLIENTE"] <-"TAQUERIA EL CHINITO"
+nuevo_df[grep('UBIQUO LABS', nuevo_df$CLIENTE),"CLIENTE"] <-"UBIQUO LABS"
+
+nuevo_df %>% 
+  group_by(CLIENTE) %>% 
+  summarise(Ventas = sum(Q), Viajes= n()) %>% 
+  mutate(Ventas_Por= (Ventas/sum(Ventas)*100),Viajes_Por= (Viajes/sum(Viajes)*100)) %>% 
+  arrange(desc(Ventas, Viajes)) %>% 
+  mutate(Ventas_Acum= cumsum(Ventas_Por), Viajes_Acum= cumsum(Viajes_Por)) %>% 
+  select(CLIENTE, Ventas, Ventas_Acum, Viajes, Viajes_Acum)
+```
+
+
+### Mejores pilotos y transportes más efectivos.
+El piloto mas efectivo es Ismael Rodero
+```{r}
+df %>% 
+  select(PILOTO, UNIDAD, Q, CANTIDAD) %>% 
+  group_by(PILOTO) %>% summarise(Ventas=sum(Q), n(), VpV=Ventas/n()) %>% 
+  arrange(desc(VpV))
+```
+El transporter mas efectivo es el camion grande pues genera mas ventas por viaje
+```{r}
+df %>% 
+  select(PILOTO, UNIDAD, Q, CANTIDAD) %>% 
+  group_by(UNIDAD) %>% summarise(Ventas=sum(Q), n(), VpV=Ventas/n()) %>% 
+  arrange(desc(VpV))
+```
+
+
+
+
+
