@@ -121,15 +121,24 @@ nuevo_df$Devolucion <- grepl('Devolucion', nuevo_df$CLIENTE, ignore.case=TRUE)
 nuevo_df %>% 
   group_by(PILOTO, MES) %>% 
   summarise(Tot=n(), Falt=sum(Faltante), Dev=sum(Devolucion, Desp=sum(Despacho))) %>% 
-  mutate(Por_Falt=Tot/Falt) %>% arrange(desc(Por_Falt)) %>% 
+  mutate(Por_Falt=Falt/Tot) %>% arrange(desc(Por_Falt)) %>% 
   mutate(mayor= ifelse(Por_Falt>=mean(Por_Falt), 1, 0)) %>% 
   ungroup() %>% group_by(PILOTO) %>% 
-  summarise(mes_Raro= sum(mayor)) %>% arrange(desc(mes_Raro))
+  summarise(mes_Raro= sum(mayor)) %>% arrange(desc(mes_Raro)) %>% View()
 ```
 ```{r}
 nuevo_df %>% 
   filter(PILOTO=="Luis Jaime Urbano") %>% 
   group_by(UNIDAD) %>% summarise(n())
+```
+
+```{r}
+nuevo_df %>% 
+  group_by(PILOTO) %>% 
+  summarise(Tot=n(), Falt=sum(Faltante), Dev=sum(Devolucion)) %>% 
+  mutate(Por_Falt=Falt/Tot*100) %>% arrange(desc(Por_Falt)) %>% 
+  mutate(mayor= ifelse(Por_Falt>=mean(Por_Falt), 1, 0)) %>% 
+  View()
 ```
 
 
