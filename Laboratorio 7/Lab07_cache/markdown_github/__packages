@@ -1,0 +1,9 @@
+base
+readr
+lubridate
+dplyr
+stringr
+tidyr
+ggplot2
+sp
+rworldmap

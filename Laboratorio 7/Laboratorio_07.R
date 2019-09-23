@@ -102,15 +102,14 @@ df %>% group_by(Mes= month(Fecha, label = TRUE), origen=as.factor(origen)) %>%
   labs(title="Ordenes por Centro")
 ggsave("Ordenes por Centro.jpg", device = "jpg", path ="graficas" )
 
+# Ordenes por Vehiculo
 df %>% group_by(origen=as.factor(origen), Vehiculo) %>% 
-  count() %>% arrange(origen, n) %>%  View()
+  count() %>% arrange(origen, n) %>% mutate(Acum=cumsum(origen)) %>% mutate(n/)
   
+# Ordenes por Poste
 df %>% group_by(ID) %>% count(name = "ordenes") %>% arrange(desc(ordenes)) %>% 
-  ungroup() %>% select(ID,ordenes) %>% mutate(Porcentaje= ordenes/n()*100, Acumulado= cumsum(Porcentaje)) %>% arrange(desc(ordenes))%>% View()
+  ungroup() %>% select(ID,ordenes) %>% arrange(desc(ordenes))%>% head (25) %>% View()
 
-cumsum(c(1,2,3,4,5,6))
-
-df %>% group_by(ID) %>%count()
 
 df %>% mutate(Ganancia= factura- `Gasto Total`) %>% group_by(Vehiculo) %>% 
   summarise(Ventas=sum(factura),Ganancia= sum(Ganancia),  Porcentaje=(sum(factura)-sum(`Gasto Total`))/sum(factura)) %>% 
