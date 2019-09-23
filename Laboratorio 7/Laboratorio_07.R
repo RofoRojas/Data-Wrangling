@@ -104,19 +104,29 @@ ggsave("Ordenes por Centro.jpg", device = "jpg", path ="graficas" )
 
 # Ordenes por Vehiculo
 df %>% group_by(origen=as.factor(origen), Vehiculo) %>% 
-  count() %>% arrange(origen, n) %>% mutate(Acum=cumsum(origen)) %>% mutate(n/)
+  count() %>% arrange(origen, n)
   
 # Ordenes por Poste
-df %>% group_by(ID) %>% count(name = "ordenes") %>% arrange(desc(ordenes)) %>% 
-  ungroup() %>% select(ID,ordenes) %>% arrange(desc(ordenes))%>% head (25) %>% View()
+df %>% group_by(ID) %>% count(name = "Ordenes") %>% arrange(desc(Ordenes)) %>% 
+  ungroup() %>% select(ID,Ordenes) %>% arrange(desc(Ordenes))%>% head (25) %>% View()
 
 
-df %>% mutate(Ganancia= factura- `Gasto Total`) %>% group_by(Vehiculo) %>% 
-  summarise(Ventas=sum(factura),Ganancia= sum(Ganancia),  Porcentaje=(sum(factura)-sum(`Gasto Total`))/sum(factura)) %>% 
-  View()
+df %>% group_by(Cod) %>% count(name = 'Ordenes') %>% 
+  arrange(desc(Ordenes)) %>% ungroup() %>% 
+  mutate(Acum= cumsum(Ordenes), Por= Ordenes/sum(Ordenes)*100,Por_Acum=cumsum(Ordenes)/sum(Ordenes)*100)
 
 
+#Facturado por Servicios
+df %>% group_by(Cod) %>% summarise(Facturado=sum(factura)) %>% 
+  arrange(desc(Facturado)) %>% ungroup() %>% 
+  mutate(Acum= cumsum(Facturado), Por= Facturado/sum(Facturado)*100,Por_Acum=cumsum(Facturado)/sum(Facturado)*100) %>% 
+  ggplot(aes(x="Datos", y=Facturado, fill= Cod))+ geom_col(position = "dodge")
 
 
+df %>% group_by(Duracion, Vehiculo) %>% summarise(Facturado= sum(factura)) %>% 
+  arrange(Duracion ,desc(Facturado)) %>% ungroup() %>% 
+  ggplot(aes(x=Duracion,y=Facturado/1000, fill=Vehiculo)) +geom_col(position = "dodge")+ 
+  labs(title="Facturado por Duracion y Vehiulo")
+ggsave("Facturado por Duracion y Vehiulo.jpg", device = "jpg", path ="graficas")
 
-
+df$Duracion %>% levels()

@@ -158,7 +158,7 @@ Generar Estado de Resultados
 ``` r
 ER <- df %>% summarise(Ventas=sum(factura), `Gastos Directos`= -sum(`Gasto Directo`),
                        `Gastos Fijos`= -sum(`Gasto Fijo`), `Gastos Totales`= -sum(`Gasto Total`))
-ER <- ER %>% mutate(EBITDA= Ventas- `Gastos Totales`)
+ER <- ER %>% mutate(EBITDA= Ventas+`Gastos Totales`)
 ER <- gather(ER, key="Rubro", value = "Cantidad")
 ER
 ```
@@ -170,7 +170,7 @@ ER
     ## 2 Gastos Directos -17893607.
     ## 3 Gastos Fijos    -10280412 
     ## 4 Gastos Totales  -28174019.
-    ## 5 EBITDA           64862116.
+    ## 5 EBITDA            8514077.
 
 Tarifa por Postes
 -----------------
@@ -306,6 +306,8 @@ df %>% group_by(origen=as.factor(origen), Vehiculo) %>%
     ## 11 150841 Camion_5  4555
     ## 12 150841 Pickup   21543
 
+La mayoria de las ordenes se trataron con Moto, esto fue cierto en todos los centros de distribucion
+
 #### Ordenes por Poste
 
 ``` r
@@ -333,3 +335,38 @@ df %>% group_by(ID) %>% count(name = "ordenes") %>% arrange(desc(ordenes)) %>%
     ## 15 576391     131
 
 Hay mas de 100 postes a los que se les generaron mas de 50 ordenes, no hay un 80,20 aca
+
+``` r
+df %>% group_by(Cod) %>% summarise(Facturado=sum(factura)) %>% 
+  arrange(desc(Facturado)) %>% ungroup() %>% 
+  mutate(Acum= cumsum(Facturado), Por= Facturado/sum(Facturado)*100, Por_Acum= cumsum(Facturado)/sum(Facturado)*100)
+```
+
+    ## # A tibble: 10 x 5
+    ##    Cod                      Facturado      Acum    Por Por_Acum
+    ##    <fct>                        <dbl>     <dbl>  <dbl>    <dbl>
+    ##  1 REVISION                 11968468. 11968468. 32.6       32.6
+    ##  2 VERIFICACION_MEDIDORES    6236958. 18205426  17.0       49.6
+    ##  3 VERIFICACION_INDICADORES  4530103. 22735529. 12.3       62.0
+    ##  4 CAMBIO_CORRECTIVO         4465830. 27201359. 12.2       74.1
+    ##  5 CAMBIO_FUSIBLE            2936608. 30137967.  8.00      82.1
+    ##  6 VISITA_POR_CORRECCION     2912254. 33050220.  7.94      90.1
+    ##  7 REVISION_TRANSFORMADOR    1970486. 35020706.  5.37      95.5
+    ##  8 OTRO                      1037758. 36058464.  2.83      98.3
+    ##  9 CAMBIO_PUENTES             325281. 36383746.  0.887     99.2
+    ## 10 VISITA                     304351. 36688096.  0.830    100
+
+En el 40% de los Codigos se mueve el 70 porciento de las ordenes y de lo facturado
+
+``` r
+df %>% group_by(Duracion, Vehiculo) %>% summarise(Facturado= sum(factura)) %>% 
+  arrange(Duracion ,desc(Facturado)) %>% ungroup() %>% 
+  ggplot(aes(x=Duracion,y=Facturado/1000, fill=Vehiculo)) +geom_col(position = "dodge")+ 
+  labs(title="Facturado por Duracion y Vehiulo")
+```
+
+![](Lab07_files/figure-markdown_github/unnamed-chunk-17-1.png)
+
+``` r
+##ggsave("Facturado por Duracion y Vehiulo.jpg", device = "jpg", path ="graficas")
+```

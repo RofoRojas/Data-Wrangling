@@ -58,7 +58,7 @@ str(df)
 ```{r, echo=TRUE, cache=TRUE}
 ER <- df %>% summarise(Ventas=sum(factura), `Gastos Directos`= -sum(`Gasto Directo`),
                        `Gastos Fijos`= -sum(`Gasto Fijo`), `Gastos Totales`= -sum(`Gasto Total`))
-ER <- ER %>% mutate(EBITDA= Ventas- `Gastos Totales`)
+ER <- ER %>% mutate(EBITDA= Ventas+`Gastos Totales`)
 ER <- gather(ER, key="Rubro", value = "Cantidad")
 ER
 ```
@@ -149,11 +149,18 @@ Hay mas de 100 postes a los que se les generaron mas de 50 ordenes, no hay un 80
 
 
 ```{r, echo=TRUE, cache=TRUE}
-
+df %>% group_by(Cod) %>% summarise(Facturado=sum(factura)) %>% 
+  arrange(desc(Facturado)) %>% ungroup() %>% 
+  mutate(Acum= cumsum(Facturado), Por= Facturado/sum(Facturado)*100, Por_Acum= cumsum(Facturado)/sum(Facturado)*100)
 ```
+En el 40% de los Codigos se mueve el 70 porciento de las ordenes y de lo facturado
 
 ```{r, echo=TRUE, cache=TRUE}
-
+df %>% group_by(Duracion, Vehiculo) %>% summarise(Facturado= sum(factura)) %>% 
+  arrange(Duracion ,desc(Facturado)) %>% ungroup() %>% 
+  ggplot(aes(x=Duracion,y=Facturado/1000, fill=Vehiculo)) +geom_col(position = "dodge")+ 
+  labs(title="Facturado por Duracion y Vehiulo")
+##ggsave("Facturado por Duracion y Vehiulo.jpg", device = "jpg", path ="graficas")
 ```
 
 ```{r, echo=TRUE, cache=TRUE}
