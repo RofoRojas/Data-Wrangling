@@ -1,0 +1,181 @@
+Laboratorio06
+================
+Rodolfo
+15/9/2019
+
+Laboratorio 6
+=============
+
+Expresiones Regulares
+---------------------
+
+Librerias
+
+``` r
+library(stringr)
+library(dplyr)
+```
+
+    ## Warning: package 'dplyr' was built under R version 3.5.2
+
+    ## 
+    ## Attaching package: 'dplyr'
+
+    ## The following objects are masked from 'package:stats':
+    ## 
+    ##     filter, lag
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     intersect, setdiff, setequal, union
+
+Pruebas y respuestas
+
+``` r
+test1 <- c("P243CNJ", "P214HNS", "P345FVJ", "A344SDF", "P2314ASD", "P245ABC")
+answer1 <- c(TRUE, TRUE, TRUE, FALSE, FALSE, FALSE)
+test2 <- c("Ejemplo1.pdf", "prueba2.PDF", "respuestas_del_examen.jpg", "amor.JPG", "hola.hpq")
+answer2 <- c(TRUE, TRUE, TRUE, TRUE, FALSE)
+test3 <- c("Hola123!", "$H123488", "$H123488Nu", "AERFSdnf", "12345678", "asdfghjk", "ASDFGHJK", "adfd!!1L", "Datawrangling2019!")
+answer3 <- c(TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE)
+test4 <- c("19002324", "31001564", "14011110", "11008921", "20003421")
+answer4 <- c(TRUE, FALSE, FALSE, TRUE, TRUE)
+test5 <- c("pit", "spot", "spate", "slap two", "respite", "pt", "Pot", "peat", "part")
+answer5 <- c(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE)
+test6 <- c("pit", "spot", "spate", "slap two", "respite", "pt", "Pot", "peat", "part")
+answer6 <- c(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE)
+test7 <- c("P243CNJ", "P214HNS", "P345FVJ", "A344SDF", "P2314ASD", "P245ABC")
+answer7 <- c(TRUE, TRUE, TRUE, FALSE, FALSE, FALSE)
+test8 <- c("Ejemplo1.pdf", "prueba2.PDF", "respuestas_del_examen.jpg", "amor.JPG", "hola.hpq")
+answer8 <- c(TRUE, TRUE, TRUE, TRUE, FALSE)
+```
+
+### 1. Placas Guatemaltecas
+
+``` r
+regex1<- str_detect(
+  string = test1,
+  pattern = "^P\\d{3}[B-DF-HJ-NP-TV-Z]{3}$"
+)
+
+all(regex1==answer1)
+```
+
+    ## [1] TRUE
+
+### 2. Archivos PDF y JPG
+
+``` r
+#2
+regex2<- str_detect(
+  string = test2,
+  pattern = "\\.((pdf)|(PDF)|(jpg)|(JPG))$"
+  # Ejemplo1.pdf, prueba2.PDF, respuestas_del_examen.jpg, amor.JPG
+)
+
+all(regex2==answer2)
+```
+
+    ## [1] TRUE
+
+### 3. Validacion de Contrasenia
+
+En este caso no pude validar que sea unicamente una mayuscula y un simbolo especial
+
+``` r
+#3
+regex3<- str_detect(
+  string = test3,
+  pattern = "^(?=.*?[A-Z])(?=.*[0-9])(?=.*?[!@#\\$%\\^&\\*])(?=.{8,})" 
+   # "^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\\$%\\^&\\*])(?=.{8,})"
+  #(?!.*?(.).*?\1)
+)
+regex3
+```
+
+    ## [1]  TRUE  TRUE  TRUE FALSE FALSE FALSE FALSE  TRUE  TRUE
+
+``` r
+all(regex3==answer3)
+```
+
+    ## [1] FALSE
+
+### 4. Carnes Galileo
+
+(El ultimo carnet le faltaba un cero en medio)
+
+``` r
+#4
+regex4 <-str_detect(
+  string = test4,
+  pattern = "^([0-2][0-9]|(30))00[1-8][1-9]([1-6][0-9]|(70))$"
+  # Galileo
+)
+all(regex4==answer4)
+```
+
+    ## [1] TRUE
+
+### 5. Palabras especificas
+
+``` r
+regex5 <-str_detect(
+  string = test5,
+  pattern = "p.t"
+)
+all(regex5==answer5)
+```
+
+    ## [1] TRUE
+
+### 6. Numeros de Guate
+
+(Los test estaban mal)
+
+``` r
+regex6 <-str_detect(
+  string = c("+50254821151", "4210-7640", "52018150", "2434 6854", "11234569", "50211234578"),
+  pattern = "^((\\+502[2456])|(502[2456])|[2456])((\\d{3}(\\s|-)\\d{4})|\\d{7})$"
+  # Numeros Guate
+)
+regex6
+```
+
+    ## [1]  TRUE  TRUE  TRUE  TRUE FALSE FALSE
+
+``` r
+##all(regex6==answer6)
+```
+
+### 7. Detectar Correos UFM
+
+(Los test estaban mal)
+
+``` r
+#7
+regex7<- str_detect(
+  string = c("rodolforojas@ufm.edu", "hi@ufmedu","youfm.edu", "rodolforoj.as@ufm.edu"),
+  pattern = "^[a-zA-Z0-9]*(@ufm\\.edu)$"
+  # Correos UFM
+)
+regex7
+```
+
+    ## [1]  TRUE FALSE FALSE FALSE
+
+### 8. Codigos de 1984
+
+(Los test estaban mal)
+
+``` r
+#8
+regex8<- str_detect(
+  string = c("abc012333ABCDEEEE","12AAA", "abcc012333ABCDEEEE", "abc0123335436ABCDEEEE", "abc1ABCDEEEE", "12AA"),
+  pattern = "^[a-z]{0,3}\\d{2,9}[A-Z]{3,}$"
+  # Codigo de 1984
+)
+regex8
+```
+
+    ## [1]  TRUE  TRUE FALSE FALSE FALSE FALSE

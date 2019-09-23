@@ -1,0 +1,119 @@
+---
+title: "Laboratorio02"
+author: "Rodolfo"
+date: "7/8/2019"
+output: rmarkdown::github_document
+---
+
+## Laboratorio 2
+```{r, echo=FALSE, cache=TRUE}
+require(RMySQL)
+connection_name <- "datawrangling.co4pgsadnasr.us-east-2.rds.amazonaws.com"
+db_name <- "dataWrangling"
+user <- "dstrack"
+password <- "datawrangling2019"
+drv = dbDriver("MySQL")
+mydb = dbConnect(drv,host=connection_name,dbname=db_name,user=user,pass=password)
+```
+
+```{r, cache=TRUE}
+# Tablas
+dbListTables(mydb)
+
+# Fields
+dbListFields(mydb, "heroes_information")
+```
+
+Ejercicio 1
+```{r, cache=TRUE}
+dbGetQuery(mydb, "SELECT name, Publisher FROM heroes_information;")
+```
+
+Ejercicio 2
+```{r, cache=TRUE}
+dbGetQuery(mydb, "SELECT DISTINCT Publisher FROM heroes_information;")
+```
+
+Ejercicio 3 COUNT
+```{r, cache=TRUE}
+dbGetQuery(mydb, "SELECT COUNT(DISTINCT Publisher) FROM heroes_information;")
+```
+
+Ejercicio 4 WHERE <> Not 5
+```{r, cache=TRUE}
+dbGetQuery(mydb, paste("SELECT  * ", 
+                       "FROM heroes_information ",
+                       "WHERE Height > 200;", sep = ""))
+```
+
+Ejercicio 6 AND 
+```{r, cache=TRUE}
+dbGetQuery(mydb, paste("SELECT  * ", 
+                       "FROM heroes_information ",
+                       "WHERE Height > 200 ", 
+                       "AND Race = 'Human';",
+                       sep = ""))
+```
+
+Ejercicio 7
+```{r, cache=TRUE}
+dbGetQuery(mydb, paste("SELECT  COUNT(*) ", 
+                       "FROM heroes_information ",
+                       "WHERE Weight > 100 ", 
+                       "AND Race < 200;",
+                       sep = ""))
+```
+
+Ejercicio 8 OR
+```{r, cache=TRUE}
+dbGetQuery(mydb, paste("SELECT  COUNT(*) ", 
+                       "FROM heroes_information ",
+                       "WHERE `Eye color` = 'blue' ", 
+                       "OR `Eye color` = 'red';",
+                       sep = ""))
+```
+
+
+Ejercicio 9 BETWEEN
+```{r, cache=TRUE}
+dbGetQuery(mydb, paste("SELECT COUNT(*) ", 
+                       "FROM heroes_information ",
+                       "WHERE Weight BETWEEN 100 AND 200;", 
+                       sep = ""))
+```
+
+Ejercicio 10 ORDER BY - DESC
+```{r, cache=TRUE}
+dbGetQuery(mydb, paste("SELECT name, Weight, Height  ", 
+                       "FROM heroes_information ",
+                       "WHERE Weight >200 AND Height > 100 ",
+                       "ORDER BY Height DESC;",
+                       sep = ""))
+```
+
+Ejercicio 11 ORDER BY - DESC
+```{r, cache=TRUE}
+dbGetQuery(mydb, paste("SELECT name, Race  ",
+                       "FROM heroes_information ",
+                       "ORDER BY name, Race;",
+                       sep = ""))
+```
+
+Ejercicio 12 GROUP BY
+```{r, cache=TRUE}
+dbGetQuery(mydb, paste("SELECT Publisher, Gender, COUNT(Gender) ", 
+                       "FROM heroes_information ",
+                       "WHERE Gender='Female' ",
+                       "GROUP BY Publisher ORDER BY COUNT(Gender) DESC;",
+                       sep = ""))
+```
+
+Ejercicio 13 HAVING
+```{r, cache=TRUE}
+dbGetQuery(mydb, paste("SELECT Publisher, Alignment, Race, COUNT(*) ", 
+                       "FROM heroes_information ",
+                       "WHERE Alignment='good' ",
+                       "GROUP BY Publisher ",
+                       "HAVING COUNT(*)>30;",
+                       sep = ""))
+```
