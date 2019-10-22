@@ -286,25 +286,16 @@ Con esta grafica podemos ver que hay dos centros muy cargados de ordenes y los o
 
 ``` r
 df %>% group_by(origen=as.factor(origen), Vehiculo) %>% 
-  count() %>% arrange(origen, n)
+  count() %>% arrange(origen, n) %>% 
+  ggplot(aes(x= origen, y=n, fill= Vehiculo)) +geom_col(position = "dodge")+
+  labs(title="Ordenes por Vehiculos")
 ```
 
-    ## # A tibble: 12 x 3
-    ## # Groups:   origen, Vehiculo [12]
-    ##    origen Vehiculo     n
-    ##    <fct>  <fct>    <int>
-    ##  1 150224 Moto      2433
-    ##  2 150224 Camion_5 26497
-    ##  3 150224 Pickup   75893
-    ##  4 150277 Moto      2622
-    ##  5 150277 Camion_5 26492
-    ##  6 150277 Pickup   76421
-    ##  7 150278 Moto       349
-    ##  8 150278 Camion_5  4723
-    ##  9 150278 Pickup   21876
-    ## 10 150841 Moto       321
-    ## 11 150841 Camion_5  4555
-    ## 12 150841 Pickup   21543
+![](Lab07_files/figure-markdown_github/unnamed-chunk-14-1.png)
+
+``` r
+##ggsave("Ordenes por Vehiculos.jpg", device = "jpg", path ="graficas" )
+```
 
 La mayoria de las ordenes se trataron con Moto, esto fue cierto en todos los centros de distribucion
 

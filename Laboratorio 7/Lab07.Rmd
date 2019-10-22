@@ -136,7 +136,10 @@ Con esta grafica podemos ver que hay dos centros muy cargados de ordenes y los o
 #### Ordenes por Vehiculo
 ```{r, echo=TRUE, cache=TRUE}
 df %>% group_by(origen=as.factor(origen), Vehiculo) %>% 
-  count() %>% arrange(origen, n)
+  count() %>% arrange(origen, n) %>% 
+  ggplot(aes(x= origen, y=n, fill= Vehiculo)) +geom_col(position = "dodge")+
+  labs(title="Ordenes por Vehiculos")
+##ggsave("Ordenes por Vehiculos.jpg", device = "jpg", path ="graficas" )
 ```
 La mayoria de las ordenes se trataron con Moto, esto fue cierto en todos los centros de distribucion
 
@@ -162,32 +165,3 @@ df %>% group_by(Duracion, Vehiculo) %>% summarise(Facturado= sum(factura)) %>%
   labs(title="Facturado por Duracion y Vehiulo")
 ##ggsave("Facturado por Duracion y Vehiulo.jpg", device = "jpg", path ="graficas")
 ```
-
-```{r, echo=TRUE, cache=TRUE}
-
-```
-
-```{r, echo=TRUE, cache=TRUE}
-
-```
-
-```{r, echo=TRUE, cache=TRUE}
-
-```
-
-```{r, echo=TRUE, cache=TRUE}
-
-```
-
-```{r, echo=TRUE, cache=TRUE}
-
-```
-
-```{r, echo=TRUE, cache=TRUE}
-
-```
-
-```{r, echo=TRUE, cache=TRUE}
-
-```
-
