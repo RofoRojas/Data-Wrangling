@@ -1,0 +1,91 @@
+---
+title: "Laboratorio_10"
+author: "Rodolfo"
+date: "11/3/2019"
+output: rmarkdown::github_document
+---
+# Laboratorio 10
+Importacion de librerias.
+```{r, echo=TRUE, cache=TRUE}
+library(readr)
+library(dplyr)
+library(plotly)
+library(lubridate)
+library(DataExplorer)
+library(corrplot)
+```
+
+
+Leer archivos
+```{r, echo=TRUE, cache=TRUE}
+movies <- read_csv("movies.csv", col_types = "inicfcdfcdicdi") %>% mutate(release_date= mdy(release_date))
+ratings <- read_csv("~/Documents/2do Semestre 2019/ratings.csv", col_types = "icidc")
+```
+
+Tipos de datos
+```{r, echo=TRUE, cache=TRUE}
+# glimpse(movies)
+# glimpse(ratings)
+plot_str(movies)
+plot_str(ratings)
+```
+Manipulando data
+(sin codigo de pelicula no puedo relacionarlas asi que lo mejor es botar estos datos)
+```{r, echo=TRUE, cache=TRUE}
+movies<-drop_columns(movies,"X1")
+ratings<-drop_columns(ratings,"X1")
+movies <- movies %>% filter(complete.cases(movies))
+ratings <- ratings %>% filter(complete.cases(movieId))
+```
+
+
+Resumen de variables numericas
+```{r, echo=TRUE, cache=TRUE}
+# Juntas <- full_join(movies, ratings, by= c())
+print("Movies:")
+print(summary(split_columns(movies[-2])$continuous))
+print("Ratings:")
+print(summary(ratings[c("rating")]))
+```
+```{r, echo=TRUE, cache=TRUE}
+plot_histogram(movies[-(2)])
+```
+
+
+Variables Categoricas y Caracteres:
+```{r, echo=TRUE, cache=TRUE}
+print("Movies:")
+summary(split_columns(movies)$discrete)
+print("Ratings:")
+summary(ratings[c("userId", "movieId")])
+```
+
+Correlacion de variables
+```{r, echo=TRUE, cache=TRUE}
+movies %>% plot_correlation()
+movies %>% filter(budget!=0, revenue!=0) %>% plot_correlation(title = "Sin valores de cero")
+```
+
+Tres Graficas de Correlacion
+```{r, echo=TRUE, cache=TRUE}
+corrplot.mixed(cor(movies[c("budget", "revenue")]), lower= "number", upper = "col")
+corrplot.mixed(cor(movies[c("revenue", "vote_count")]), lower= "number", upper = "col")
+corrplot.mixed(cor(movies[c("budget", "vote_count")]), lower="number", upper = "col")
+```
+
+Conclusiones:
+La tabla de ratings no es util mas que para verificacion pues los datos ya estan resumidos en la tabla movies. 
+```{r, echo=TRUE, cache=TRUE}
+ratings %>% filter(movieId==862) %>% summarise(movieId=862,vote_count_generado=n(), vote_average_generado=mean(rating)*2) %>% left_join(movies, by= c("movieId"="id"))
+```
+
+La informacion esta incompleta y esto perjudica en cierta forma el analisis de los datos como el hecho de que falte informacion sobre presupuestos y sobre los ingresos.
+
+Hay cierta correlacion con los ingresos y la cantidad de votos y tambien con el presupuesto y tiene sentido que tambien estos tengan correlacion entre si y con la popularidad.
+
+
+
+
+
+
+

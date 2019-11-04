@@ -1,0 +1,57 @@
+---
+title: 'Clase #10'
+author: "Fausto Holcombe 20170476"
+date: "10/28/2019"
+output: html_document
+---
+## Importar Librerias
+```{r setup, cache = TRUE}
+library(readr)
+library(dplyr)
+library(plotly)
+library(DataExplorer)
+```
+
+## Cargar dataframes
+```{r setup, cache = TRUE}
+df <- read_delim(file = "cardio_train.csv",
+                 delim = ";") %>% 
+  mutate(salary = sample(c("Less than 1K",
+                           "1K to 5K",
+                           "5K to 10K",
+                           "More than 10K",
+                           NA),
+                         size = 70000,
+                         replace = T,
+                         prob = c(0.2,0.4,0.2,0.05,0.15)),
+         work = ifelse(is.na(salary),0,1),
+         lang = sample(c(0,1,NA),
+                       size = 70000,
+                       replace = TRUE,
+                       prob = c(0.2,0.2,0.6)))
+glimpse(df)
+plot_str(df)
+introduce(df)
+df <- df %>% 
+  mutate(age = floor(age/365.25))
+colSums(is.na(df))
+plot_missing(df)
+hist_plt <- function(df, var, norm = "normal", bins){
+  var <- sym(var)
+  df %>% 
+    select(variable = !!var) %>% 
+    plot_ly(x = ~variable,
+            type = "histogram",
+            histnorm = norm,
+            nbinsx = bins)
+}
+plot_histogram(df)
+plot_density(df)
+plot_correlation(df)
+plot_bar(df)
+#corrplot (library corrplot)
+df2 <- diamonds
+lm1 <- lm(formula = price ~ carat, data = df2)
+df2 %>% plot_ly(x = ~carat, y = ~price, type = "scatter", mode = "markers") %>% add_trace(x = ~carat, y = fitted.values(lm1), mode = "lines")
+create_report(df)
+```
